@@ -53,6 +53,14 @@ describe('parseEntryInput', () => {
   it('rejects Infinity', () => {
     expect(parseEntryInput('Infinity', '8')).toEqual({ ok: false, error: 'Weight must be a number.' })
   })
+
+  it('rejects non-numeric reps', () => {
+    expect(parseEntryInput('60', 'ten')).toEqual({ ok: false, error: 'Reps must be a number.' })
+  })
+
+  it('rejects Infinity reps', () => {
+    expect(parseEntryInput('60', 'Infinity')).toEqual({ ok: false, error: 'Reps must be a number.' })
+  })
 })
 
 describe('parseExerciseInput', () => {

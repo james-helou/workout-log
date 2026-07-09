@@ -61,6 +61,41 @@ describe('parseEntryInput', () => {
   it('rejects Infinity reps', () => {
     expect(parseEntryInput('60', 'Infinity')).toEqual({ ok: false, error: 'Reps must be a number.' })
   })
+
+  it('accepts weight at exactly the cap', () => {
+    expect(parseEntryInput('2000', '8')).toEqual({ ok: true, weight: 2000, reps: 8 })
+  })
+
+  it('rejects weight one step past the cap', () => {
+    expect(parseEntryInput('2000.01', '8')).toEqual({ ok: false, error: 'Weight must be 2000 lb or less.' })
+  })
+
+  it('accepts reps at exactly the cap', () => {
+    expect(parseEntryInput('60', '1000')).toEqual({ ok: true, weight: 60, reps: 1000 })
+  })
+
+  it('rejects reps one step past the cap', () => {
+    expect(parseEntryInput('60', '1001')).toEqual({ ok: false, error: 'Reps must be 1000 or less.' })
+  })
+
+  it('accepts exactly two decimal places', () => {
+    expect(parseEntryInput('52.25', '8')).toEqual({ ok: true, weight: 52.25, reps: 8 })
+  })
+
+  it('rejects weight the database would silently round', () => {
+    expect(parseEntryInput('52.567', '8')).toEqual({
+      ok: false,
+      error: 'Weight can have at most 2 decimal places.',
+    })
+  })
+
+  it('rejects hexadecimal weight', () => {
+    expect(parseEntryInput('0x10', '8')).toEqual({ ok: false, error: 'Weight must be a number.' })
+  })
+
+  it('rejects scientific notation', () => {
+    expect(parseEntryInput('1e3', '8')).toEqual({ ok: false, error: 'Weight must be a number.' })
+  })
 })
 
 describe('parseExerciseInput', () => {
@@ -93,5 +128,9 @@ describe('parseExerciseInput', () => {
 
   it('rejects an unknown muscle group', () => {
     expect(parseExerciseInput('Row', 'forearms')).toEqual({ ok: false, error: 'Pick a muscle group.' })
+  })
+
+  it('trims the muscle group', () => {
+    expect(parseExerciseInput('Row', ' back ')).toEqual({ ok: true, name: 'Row', muscleGroup: 'back' })
   })
 })

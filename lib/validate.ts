@@ -12,6 +12,19 @@ const MAX_WEIGHT = 2000
 const MAX_REPS = 1000
 const MAX_NAME = 80
 
+/**
+ * Number() accepts '0x10', '1e3', and 'Infinity'. A human logging a lift types
+ * none of those. Optional leading '-' is allowed through so that a negative
+ * value reports "must be greater than zero" rather than "must be a number".
+ */
+const DECIMAL = /^-?\d+(\.\d+)?$/
+
+/** weight is stored as NUMERIC(6,2); more precision than that is silently rounded by Postgres. */
+function tooPrecise(raw: string): boolean {
+  const dot = raw.indexOf('.')
+  return dot !== -1 && raw.length - dot - 1 > 2
+}
+
 export function parseEntryInput(rawWeight: string, rawReps: string): EntryInput {
   const w = rawWeight.trim()
   const r = rawReps.trim()
@@ -19,14 +32,14 @@ export function parseEntryInput(rawWeight: string, rawReps: string): EntryInput 
   if (w === '') return { ok: false, error: 'Enter a weight.' }
   if (r === '') return { ok: false, error: 'Enter a rep count.' }
 
+  if (!DECIMAL.test(w)) return { ok: false, error: 'Weight must be a number.' }
+  if (tooPrecise(w)) return { ok: false, error: 'Weight can have at most 2 decimal places.' }
   const weight = Number(w)
-  // Number('Infinity') is a number but not finite; Number('') is 0, already excluded above.
-  if (!Number.isFinite(weight)) return { ok: false, error: 'Weight must be a number.' }
   if (weight <= 0) return { ok: false, error: 'Weight must be greater than zero.' }
   if (weight > MAX_WEIGHT) return { ok: false, error: `Weight must be ${MAX_WEIGHT} lb or less.` }
 
+  if (!DECIMAL.test(r)) return { ok: false, error: 'Reps must be a number.' }
   const reps = Number(r)
-  if (!Number.isFinite(reps)) return { ok: false, error: 'Reps must be a number.' }
   if (!Number.isInteger(reps)) return { ok: false, error: 'Reps must be a whole number.' }
   if (reps <= 0) return { ok: false, error: 'Reps must be greater than zero.' }
   if (reps > MAX_REPS) return { ok: false, error: `Reps must be ${MAX_REPS} or less.` }
@@ -43,7 +56,8 @@ export function parseExerciseInput(rawName: string, rawGroup: string): ExerciseI
 
   if (name === '') return { ok: false, error: 'Enter an exercise name.' }
   if (name.length > MAX_NAME) return { ok: false, error: `Name must be ${MAX_NAME} characters or less.` }
-  if (!isMuscleGroup(rawGroup)) return { ok: false, error: 'Pick a muscle group.' }
+  const group = rawGroup.trim()
+  if (!isMuscleGroup(group)) return { ok: false, error: 'Pick a muscle group.' }
 
-  return { ok: true, name, muscleGroup: rawGroup }
+  return { ok: true, name, muscleGroup: group }
 }

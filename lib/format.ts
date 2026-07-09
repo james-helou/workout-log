@@ -16,6 +16,8 @@ function signed(n: number): string {
 export function formatDelta(current: Measured, previous: Measured | null): string | null {
   if (!previous) return null
 
+  // Safe to compare against 0 exactly: weights are validated to 2 decimal places
+  // and stored as NUMERIC(6,2), so equal-intent values subtract to exactly zero.
   const dWeight = current.weight - previous.weight
   const dReps = current.reps - previous.reps
 

@@ -25,3 +25,19 @@ export function formatDelta(current: Measured, previous: Measured | null): strin
 
   return parts.length > 0 ? parts.join(', ') : null
 }
+
+const MINUTE = 60_000
+const HOUR = 60 * MINUTE
+const DAY = 24 * HOUR
+const WEEK = 7 * DAY
+
+/** Compact elapsed time: "just now", "5m ago", "3h ago", "3d ago", "1w ago". */
+export function formatRelative(then: Date, now: Date): string {
+  const ms = now.getTime() - then.getTime()
+
+  if (ms < MINUTE) return 'just now'
+  if (ms < HOUR) return `${Math.floor(ms / MINUTE)}m ago`
+  if (ms < DAY) return `${Math.floor(ms / HOUR)}h ago`
+  if (ms < WEEK) return `${Math.floor(ms / DAY)}d ago`
+  return `${Math.floor(ms / WEEK)}w ago`
+}

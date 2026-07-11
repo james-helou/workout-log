@@ -74,6 +74,17 @@ describe('getEntries', () => {
     expect(entries.map((e) => e.weight)).toEqual([60, 55])
   })
 
+  it('breaks a same-timestamp tie by id, newest id first', async () => {
+    const ex = await addExercise('Shoulder Press', 'shoulder')
+    const ts = '2026-01-01T00:00:00Z'
+    // Same logged_at on both rows: ordering must fall to the id DESC tiebreak.
+    await sql`INSERT INTO entries (exercise_id, weight, reps, logged_at) VALUES (${ex.id}, 55, 10, ${ts})`
+    await sql`INSERT INTO entries (exercise_id, weight, reps, logged_at) VALUES (${ex.id}, 60, 8, ${ts})`
+
+    const entries = await getEntries(ex.id)
+    expect(entries.map((e) => e.reps)).toEqual([8, 10]) // the later-inserted (higher id) row first
+  })
+
   it('returns an empty array for a never-logged exercise', async () => {
     const ex = await addExercise('Face Pull', 'shoulder')
     expect(await getEntries(ex.id)).toEqual([])
@@ -98,6 +109,16 @@ describe('listExercisesWithLatest', () => {
     expect(found.latest).toMatchObject({ weight: 60, reps: 8 })
   })
 
+  it('coerces the latest fractional weight to a number', async () => {
+    const ex = await addExercise('Curl', 'bicep')
+    await insertEntry(ex.id, 52.5, 8)
+
+    const all = await listExercisesWithLatest()
+    const found = all.find((e) => e.id === ex.id)!
+    expect(found.latest!.weight).toBe(52.5)
+    expect(typeof found.latest!.weight).toBe('number')
+  })
+
   it('reports null for a never-logged exercise', async () => {
     await addExercise('Face Pull', 'shoulder')
     const all = await listExercisesWithLatest()
@@ -118,10 +139,11 @@ describe('updateEntry', () => {
     const ex = await addExercise('Shoulder Press', 'shoulder')
     const entry = await insertEntry(ex.id, 600, 8) // fat-fingered
 
-    await updateEntry(entry.id, 60, 8)
+    await updateEntry(entry.id, 60, 12)
 
     const [fixed] = await getEntries(ex.id)
     expect(fixed.weight).toBe(60)
+    expect(fixed.reps).toBe(12) // reps write, not just weight
     expect(fixed.loggedAt.getTime()).toBe(entry.loggedAt.getTime())
   })
 

@@ -251,3 +251,120 @@ button:disabled {
   margin-top: 3rem;
   text-align: center;
 }
+
+/* ---- search ---- */
+.search-input {
+  margin-bottom: 1.5rem;
+  min-height: 48px;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ---- header holds chart + add buttons ---- */
+.page-header .btn-add + .btn-add {
+  margin-left: 0.5rem;
+}
+
+/* ---- range toggle (segmented control) ---- */
+.range-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.range-opt {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  border-radius: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.range-opt.active {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---- muscle-group growth cards ---- */
+.group-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+.group-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.group-card-name {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.growth {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.growth.up { color: var(--accent); }
+.growth.down { color: var(--danger); }
+.growth.none, .growth.flat { color: var(--muted); }
+
+/* ---- per-exercise trend rows ---- */
+.trend-section { margin-bottom: 1.5rem; }
+.trend-row {
+  display: block;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+.trend-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+}
+.trend-name { font-weight: 500; }
+.trend-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.trend-area { fill: var(--accent); opacity: 0.12; }
+.trend-line {
+  stroke: var(--accent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.trend-dot { fill: var(--accent); }
+.trend-hint, .trend-empty {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ---- narrow-phone reflow: inline edit row's 4-column grid crowds at <=360px ---- */
+@media (max-width: 360px) {
+  .history-edit {
+    grid-template-columns: 1fr 1fr;
+  }
+  .history-edit button {
+    grid-column: span 1;
+  }
+}

@@ -9,18 +9,17 @@ const OPTIONS: { value: Range; label: string }[] = [
 
 export function RangeToggle({ slug, current }: { slug: string; current: Range }) {
   return (
-    <div className="range-toggle" role="tablist" aria-label="Time range">
+    <nav className="range-toggle" aria-label="Time range">
       {OPTIONS.map((o) => (
         <Link
           key={o.value}
           href={`/${slug}/analytics?range=${o.value}`}
           className={`range-opt${o.value === current ? ' active' : ''}`}
-          aria-selected={o.value === current}
-          role="tab"
+          aria-current={o.value === current ? 'page' : undefined}
         >
           {o.label}
         </Link>
       ))}
-    </div>
+    </nav>
   )
 }

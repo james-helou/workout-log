@@ -43,40 +43,42 @@ export default async function AnalyticsPage({
 
       <RangeToggle slug={slug} current={range} />
 
-      <section className="group-cards">
-        {groupsWithExercises.map(({ group, exercises }) => {
-          const g = pct(groupGrowth(exercises, range, now))
-          return (
-            <div key={group} className="group-card">
-              <span className="group-card-name">{group}</span>
-              <span className={`growth ${g.cls}`}>{g.text}</span>
-            </div>
-          )
-        })}
-      </section>
-
-      {groupsWithExercises.map(({ group, exercises }) => (
-        <section key={group} className="group trend-section">
-          <h2>{group}</h2>
-          {exercises.map((ex) => {
-            const series = est1RMSeries(ex.entries, range, now)
-            const g = pct(exerciseGrowth(ex, range, now))
-            return (
-              <Link key={ex.id} href={`/${slug}/e/${ex.id}`} className="trend-row">
-                <div className="trend-head">
-                  <span className="trend-name">{ex.name}</span>
+      {groupsWithExercises.length === 0 ? (
+        <p className="empty">No exercises yet. Add some and log a few sessions to see progress.</p>
+      ) : (
+        <>
+          <section className="group-cards">
+            {groupsWithExercises.map(({ group, exercises }) => {
+              const g = pct(groupGrowth(exercises, range, now))
+              return (
+                <div key={group} className="group-card">
+                  <span className="group-card-name">{group}</span>
                   <span className={`growth ${g.cls}`}>{g.text}</span>
                 </div>
-                <TrendChart points={series} />
-                {series.length < 2 && <p className="trend-hint">Log more to see your trend.</p>}
-              </Link>
-            )
-          })}
-        </section>
-      ))}
+              )
+            })}
+          </section>
 
-      {groupsWithExercises.length === 0 && (
-        <p className="empty">No exercises yet. Add some and log a few sessions to see progress.</p>
+          {groupsWithExercises.map(({ group, exercises }) => (
+            <section key={group} className="group trend-section">
+              <h2>{group}</h2>
+              {exercises.map((ex) => {
+                const series = est1RMSeries(ex.entries, range, now)
+                const g = pct(exerciseGrowth(ex, range, now))
+                return (
+                  <Link key={ex.id} href={`/${slug}/e/${ex.id}`} className="trend-row">
+                    <div className="trend-head">
+                      <span className="trend-name">{ex.name}</span>
+                      <span className={`growth ${g.cls}`}>{g.text}</span>
+                    </div>
+                    <TrendChart points={series} />
+                    {series.length === 1 && <p className="trend-hint">Log more to see your trend.</p>}
+                  </Link>
+                )
+              })}
+            </section>
+          ))}
+        </>
       )}
     </div>
   )

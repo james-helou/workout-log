@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless'
-import type { Entry, Exercise, ExerciseWithLatest, MuscleGroup } from './types'
+import type { Entry, Exercise, ExerciseWithEntries, ExerciseWithLatest, MuscleGroup } from './types'
 
 /**
  * Tests hit the Neon `workout_test` database; everything else hits `neondb`.
@@ -116,4 +116,48 @@ export async function updateEntry(id: number, weight: number, reps: number): Pro
 
 export async function deleteEntry(id: number): Promise<void> {
   await sql`DELETE FROM entries WHERE id = ${id}`
+}
+
+/**
+ * Every exercise with its full entry history, entries oldest→newest.
+ * One query, grouped in JS. Weights coerced via toEntry.
+ */
+export async function getAllExercisesWithEntries(): Promise<ExerciseWithEntries[]> {
+  const rows = await sql`
+    SELECT
+      ex.id AS ex_id, ex.name, ex.muscle_group,
+      e.id AS entry_id, e.exercise_id, e.weight, e.reps, e.logged_at
+    FROM exercises ex
+    LEFT JOIN entries e ON e.exercise_id = ex.id
+    ORDER BY ex.name ASC, e.logged_at ASC, e.id ASC
+  `
+
+  const byExercise = new Map<number, ExerciseWithEntries>()
+  const order: number[] = []
+
+  for (const row of rows) {
+    const exId = Number(row.ex_id)
+    if (!byExercise.has(exId)) {
+      byExercise.set(exId, {
+        id: exId,
+        name: row.name as string,
+        muscleGroup: row.muscle_group as MuscleGroup,
+        entries: [],
+      })
+      order.push(exId)
+    }
+    if (row.entry_id !== null) {
+      byExercise.get(exId)!.entries.push(
+        toEntry({
+          id: row.entry_id,
+          exercise_id: row.exercise_id,
+          weight: row.weight,
+          reps: row.reps,
+          logged_at: row.logged_at,
+        }),
+      )
+    }
+  }
+
+  return order.map((id) => byExercise.get(id)!)
 }

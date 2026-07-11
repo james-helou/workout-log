@@ -4,6 +4,7 @@ import {
   addExercise,
   deleteEntry,
   deleteExercise,
+  getAllExercisesWithEntries,
   getEntries,
   getExercise,
   insertEntry,
@@ -190,5 +191,30 @@ describe('deleteExercise', () => {
 describe('getExercise', () => {
   it('returns null for an unknown id', async () => {
     expect(await getExercise(999_999)).toBeNull()
+  })
+})
+
+describe('getAllExercisesWithEntries', () => {
+  it('returns every exercise with its entries oldest-first and numeric weights', async () => {
+    const a = await addExercise('Bench Press', 'chest')
+    const b = await addExercise('Face Pull', 'shoulder') // no entries
+    await insertEntry(a.id, 60, 10)
+    await insertEntry(a.id, 52.5, 8)
+
+    const all = await getAllExercisesWithEntries()
+    expect(all).toHaveLength(2)
+
+    const bench = all.find((e) => e.id === a.id)!
+    expect(bench.entries).toHaveLength(2)
+    expect(bench.entries[0].loggedAt.getTime()).toBeLessThanOrEqual(bench.entries[1].loggedAt.getTime())
+    expect(typeof bench.entries.find((e) => e.reps === 8)!.weight).toBe('number')
+    expect(bench.entries.find((e) => e.reps === 8)!.weight).toBe(52.5)
+
+    const facePull = all.find((e) => e.id === b.id)!
+    expect(facePull.entries).toEqual([])
+  })
+
+  it('returns an empty array when there are no exercises', async () => {
+    expect(await getAllExercisesWithEntries()).toEqual([])
   })
 })

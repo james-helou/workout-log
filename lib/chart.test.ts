@@ -13,6 +13,7 @@ describe('buildChartGeometry', () => {
     const g = buildChartGeometry([p(0, 50)], W, H, PAD)
     expect(g.dots).toHaveLength(1)
     expect(g.line).toBe('')
+    expect(g.dots[0].x).toBeCloseTo(W / 2)
     expect(g.dots[0].y).toBeCloseTo(H / 2)
   })
 
@@ -41,9 +42,12 @@ describe('buildChartGeometry', () => {
     expect(xs).toEqual([...xs].sort((a, b) => a - b))
   })
 
-  it('builds an area path closed along the baseline', () => {
+  it('builds an area path closed along the baseline at height − pad', () => {
     const g = buildChartGeometry([p(0, 10), p(1, 20)], W, H, PAD)
     expect(g.area).toContain('Z')
+    // starts and ends on the baseline y = H - PAD
+    expect(g.area.startsWith(`M${PAD.toFixed(2)},${(H - PAD).toFixed(2)}`)).toBe(true)
+    expect(g.area).toContain(`L${(W - PAD).toFixed(2)},${(H - PAD).toFixed(2)} Z`)
   })
 
   it('returns empty geometry for no points', () => {

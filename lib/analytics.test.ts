@@ -54,6 +54,10 @@ describe('filterEntriesByRange', () => {
   it('30 keeps entries within 30 days', () => {
     expect(filterEntriesByRange(entries, '30', NOW)).toHaveLength(1)
   })
+  it('includes an entry at exactly the boundary (inclusive >=)', () => {
+    const onBoundary = [entry({ loggedAt: daysAgo(30) })]
+    expect(filterEntriesByRange(onBoundary, '30', NOW)).toHaveLength(1)
+  })
 })
 
 describe('growthPct', () => {

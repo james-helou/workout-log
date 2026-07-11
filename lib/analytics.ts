@@ -2,7 +2,7 @@ import type { Entry, ExerciseWithEntries } from './types'
 
 export type Range = 'all' | '30' | '90'
 
-/** Epley estimated 1-rep max. Collapses to the weight at one rep. */
+/** Epley estimated 1-rep max: weight × (1 + reps/30). At one rep this is weight × 31/30. */
 export function est1RM(weight: number, reps: number): number {
   return weight * (1 + reps / 30)
 }
@@ -24,7 +24,8 @@ function sortedByDate(entries: Entry[]): Entry[] {
 
 /**
  * Percent change in est-1RM from the earliest to the latest entry.
- * Null with fewer than two entries. Never divides by zero (weight > 0).
+ * Null with fewer than two entries. Assumes weight > 0 (enforced by the schema),
+ * so the earliest est-1RM is never zero.
  */
 export function growthPct(entries: Entry[]): number | null {
   if (entries.length < 2) return null

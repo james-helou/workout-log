@@ -27,7 +27,7 @@ export function LogForm({
             name="weight"
             type="number"
             inputMode="decimal"
-            step="0.5"
+            step="any"
             min="0"
             defaultValue={defaultWeight ?? ''}
             required

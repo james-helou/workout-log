@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { editEntry, removeEntry, type ActionState } from '../../actions'
 import type { Entry } from '@/lib/types'
 
@@ -20,6 +20,15 @@ export function HistoryRow({
   const [editing, setEditing] = useState(false)
   const action = editEntry.bind(null, slug, exerciseId, entry.id)
   const [state, formAction, pending] = useActionState<ActionState, FormData>(action, null)
+
+  // Close the inline editor once a save completes without an error. revalidatePath
+  // refreshes the row's data but does NOT remount this client component, so its
+  // `editing` state has to be reset explicitly on the pending→idle edge.
+  const wasPending = useRef(false)
+  useEffect(() => {
+    if (wasPending.current && !pending && !state?.error) setEditing(false)
+    wasPending.current = pending
+  }, [pending, state])
 
   if (!editing) {
     return (
@@ -43,7 +52,7 @@ export function HistoryRow({
           name="weight"
           type="number"
           inputMode="decimal"
-          step="0.5"
+          step="any"
           min="0"
           defaultValue={entry.weight}
           aria-label="Weight"

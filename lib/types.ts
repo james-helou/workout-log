@@ -28,3 +28,8 @@ export type Entry = {
 export type ExerciseWithLatest = Exercise & {
   latest: Entry | null
 }
+
+/** An exercise with its full entry history, oldest first. */
+export type ExerciseWithEntries = Exercise & {
+  entries: Entry[]
+}

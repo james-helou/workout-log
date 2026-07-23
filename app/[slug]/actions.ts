@@ -81,12 +81,14 @@ export async function createExercise(
   )
   if (!parsed.ok) return { error: parsed.error }
 
+  let created
   try {
-    await db.addExercise(parsed.name, parsed.muscleGroup)
+    created = await db.addExercise(parsed.name, parsed.muscleGroup)
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not add that exercise.' }
   }
 
   revalidatePath(`/${slug}`)
-  redirect(`/${slug}`)
+  // Open the new exercise straight away — you usually add one to log it right now.
+  redirect(`/${slug}/e/${created.id}`)
 }

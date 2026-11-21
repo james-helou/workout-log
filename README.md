@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# Workout Log
 
-First, run the development server:
+**A simple lifting tracker for your phone: log a set in two taps and watch your strength go up over time.**
+
+<img alt="Built with Next.js" src="https://img.shields.io/badge/Built_with-Next.js-24292f?style=for-the-badge"> <img alt="Data in Postgres" src="https://img.shields.io/badge/Data_in-Postgres-24292f?style=for-the-badge"> <img alt="Made for your phone" src="https://img.shields.io/badge/Made_for-your_phone-24292f?style=for-the-badge">
+
+</div>
+
+<br>
+
+Most workout apps want you to plan programs, follow routines and fill in a dozen fields. This one only asks what you lifted and how many times. Every set is saved as a new entry and nothing is ever overwritten, so your full history is always there. It's a personal app: there are no accounts, just a private link you add to your home screen.
+
+## What you can do with it
+
+- Log a set (weight and reps) for any exercise, grouped by muscle: shoulders, chest, back, biceps, triceps, core and legs.
+- See the last thing you lifted for each exercise right on the home screen, so you know what to beat.
+- Find an exercise fast with a forgiving search: typing "bp" finds Bench Press, and spaces, dashes and capitals don't matter.
+- Open an exercise to see every set you've logged for it.
+- Check the analytics page for estimated one-rep-max trends and how each muscle group is growing, over the range you choose.
+- Add it to your iPhone home screen, where it opens like a regular app.
+
+## How it's built
+
+Next.js and TypeScript on Vercel, with Postgres on Neon queried in plain SQL (no ORM). Charts are drawn as plain SVG, with no chart library. The logic for analytics, search and validation lives in small tested modules under `lib/`.
+
+## Run it locally
+
+You need Node 20+ and a Postgres database.
 
 ```bash
+git clone https://github.com/james-helou/workout-log.git
+cd workout-log
+npm install
+psql "$DATABASE_URL" -f lib/schema.sql   # once, to create the tables
+echo 'DATABASE_URL=postgres://...' > .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Then open `http://localhost:3000/<any-slug>`. Run the tests with `npm test`.
